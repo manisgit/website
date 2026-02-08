@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Shop Management System</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Manage your mobile shop devices, repairs, and sales">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Shop Manager">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .install-banner {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 10px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .install-banner.show {
+            display: flex;
+        }
+
+        .install-btn {
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .offline-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .offline-indicator.show {
+            display: block;
+        }
+
+        .offline-indicator.online {
+            background: #28a745;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1em;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .nav-tab:hover {
+            background: #e9ecef;
+        }
+
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            background: white;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .devices-list {
+            margin-top: 30px;
+        }
+
+        .device-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: 120px 1fr auto;
+            gap: 20px;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .device-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .device-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .device-image-placeholder {
+            width: 100px;
+            height: 100px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 0.8em;
+        }
+
+        .device-info h3 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .device-info p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .device-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-in-progress {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .status-completed {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-delivered {
+            background: #d3d3d4;
+            color: #41464b;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .sales-table th,
+        .sales-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .sales-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .sales-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .pattern-lock-container {
+            margin-top: 10px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .pattern-lock-container.active {
+            display: block;
+        }
+
+        .pattern-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .pattern-dot {
+            width: 80px;
+            height: 80px;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: #667eea;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .pattern-dot:hover {
+            background: #f0f0f0;
+        }
+
+        .pattern-dot.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .pattern-display {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            min-height: 40px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .pattern-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .lock-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .lock-type-btn {
+            flex: 1;
+            padding: 8px 15px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lock-type-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .device-card {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .pattern-grid {
+                grid-template-columns: repeat(3, 60px);
+                gap: 8px;
+            }
+
+            .pattern-dot {
+                width: 60px;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Mobile Shop Management</h1>
+            <p>Track devices, manage repairs, and monitor sales</p>
+            <div id="installBanner" class="install-banner">
+                <span>📲 Install this app for easy access!</span>
+                <button class="install-btn" id="installBtn">Install App</button>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('entry')">Device Entry</button>
+            <button class="nav-tab" onclick="switchTab('status')">Device Status</button>
+            <button class="nav-tab" onclick="switchTab('completed')">Completed & Delivered</button>
+            <button class="nav-tab" onclick="switchTab('sales')">Sales Data</button>
+        </div>
+
+        <div class="content">
+            <!-- Device Entry Tab -->
+            <div id="entry" class="tab-content active">
+                <h2>Add New Device</h2>
+                <form id="deviceForm" onsubmit="addDevice(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Customer Name *</label>
+                            <input type="text" id="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Number *</label>
+                            <input type="tel" id="contactNumber" required pattern="[0-9]{10,15}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Password/PIN</label>
+                            <input type="text" id="password" placeholder="Device unlock password">
+                            
+                            <div class="lock-type-selector">
+                                <button type="button" class="lock-type-btn active" onclick="toggleLockType('password')">Password/PIN</button>
+                                <button type="button" class="lock-type-btn" onclick="toggleLockType('pattern')">Pattern Lock</button>
+                            </div>
+
+                            <div id="patternLockContainer" class="pattern-lock-container">
+                                <div class="pattern-display" id="patternDisplay">Draw pattern below</div>
+                                <div class="pattern-grid" id="patternGrid">
+                                    <div class="pattern-dot" data-num="1">1</div>
+                                    <div class="pattern-dot" data-num="2">2</div>
+                                    <div class="pattern-dot" data-num="3">3</div>
+                                    <div class="pattern-dot" data-num="4">4</div>
+                                    <div class="pattern-dot" data-num="5">5</div>
+                                    <div class="pattern-dot" data-num="6">6</div>
+                                    <div class="pattern-dot" data-num="7">7</div>
+                                    <div class="pattern-dot" data-num="8">8</div>
+                                    <div class="pattern-dot" data-num="9">9</div>
+                                </div>
+                                <div class="pattern-buttons">
+                                    <button type="button" class="btn btn-secondary" onclick="clearPattern()">Clear Pattern</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Estimated Cost</label>
+                            <input type="number" id="estimatedCost" placeholder="₹ 0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fault Description *</label>
+                        <textarea id="fault" required placeholder="Describe the issue with the device..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Device Image</label>
+                        <input type="file" id="deviceImage" accept="image/*" onchange="previewImage(event)">
+                        <img id="imagePreview" class="image-preview" style="display: none;">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add Device</button>
+                </form>
+            </div>
+
+            <!-- Device Status Tab -->
+            <div id="status" class="tab-content">
+                <h2>Device Management</h2>
+                
+                <div class="filter-section">
+                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                        <label>Filter by Status</label>
+                        <select id="statusFilter" onchange="filterDevices()">
+                            <option value="all">All Devices</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="delivered">Delivered</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                        <label>Search</label>
+                        <input type="text" id="searchInput" placeholder="Search by name or contact..." oninput="filterDevices()">
+                    </div>
+                </div>
+
+                <div id="devicesList" class="devices-list"></div>
+            </div>
+
+            <!-- Completed & Delivered Tab -->
+            <div id="completed" class="tab-content">
+                <h2>Completed & Delivered Devices</h2>
+                
+                <div class="filter-section">
+                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                        <label>Filter</label>
+                        <select id="completedFilter" onchange="displayCompletedDevices()">
+                            <option value="both">Both (Completed & Delivered)</option>
+                            <option value="completed">Completed Only</option>
+                            <option value="delivered">Delivered Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                        <label>Search</label>
+                        <input type="text" id="completedSearchInput" placeholder="Search by name or contact..." oninput="displayCompletedDevices()">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0; flex: 1;">
+                        <label>Date Range</label>
+                        <input type="month" id="completedMonthFilter" onchange="displayCompletedDevices()">
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="margin-top: 20px;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                        <h3 id="completedCount">0</h3>
+                        <p>Completed Devices</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+                        <h3 id="deliveredCount">0</h3>
+                        <p>Delivered Devices</p>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                        <h3 id="completedRevenue">₹0</h3>
+                        <p>Total Revenue</p>
+                    </div>
+                </div>
+
+                <div id="completedDevicesList" class="devices-list"></div>
+            </div>
+
+            <!-- Sales Data Tab -->
+            <div id="sales" class="tab-content">
+                <h2>Sales Dashboard</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="todaySales">₹0</h3>
+                        <p>Today's Sales</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="monthSales">₹0</h3>
+                        <p>This Month's Sales</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalDevices">0</h3>
+                        <p>Total Devices</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="completedDevices">0</h3>
+                        <p>Completed</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Select Month</label>
+                    <input type="month" id="monthSelector" onchange="updateSalesData()">
+                </div>
+
+                <h3>Sales Records</h3>
+                <table class="sales-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Contact</th>
+                            <th>Fault</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Device Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Device</h2>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="editForm" onsubmit="saveEdit(event)">
+                <input type="hidden" id="editDeviceId">
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="editStatus">
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="delivered">Delivered</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Final Cost</label>
+                    <input type="number" id="editCost" placeholder="₹ 0">
+                </div>
+
+                <div class="form-group">
+                    <label>Customer Name</label>
+                    <input type="text" id="editCustomerName">
+                </div>
+
+                <div class="form-group">
+                    <label>Contact Number</label>
+                    <input type="tel" id="editContactNumber">
+                </div>
+
+                <div class="form-group">
+                    <label>Fault Description</label>
+                    <textarea id="editFault"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Database structure (ready for backend migration)
+        class Database {
+            constructor() {
+                this.storageKey = 'mobileShopDB';
+                this.data = this.load();
+            }
+
+            load() {
+                const stored = localStorage.getItem(this.storageKey);
+                return stored ? JSON.parse(stored) : { devices: [] };
+            }
+
+            save() {
+                localStorage.setItem(this.storageKey, JSON.stringify(this.data));
+            }
+
+            // CRUD operations (ready for API integration)
+            createDevice(device) {
+                device.id = Date.now().toString();
+                device.createdAt = new Date().toISOString();
+                device.status = 'pending';
+                this.data.devices.push(device);
+                this.save();
+                return device;
+            }
+
+            getDevices() {
+                return this.data.devices;
+            }
+
+            getDeviceById(id) {
+                return this.data.devices.find(d => d.id === id);
+            }
+
+            updateDevice(id, updates) {
+                const index = this.data.devices.findIndex(d => d.id === id);
+                if (index !== -1) {
+                    this.data.devices[index] = { ...this.data.devices[index], ...updates };
+                    this.save();
+                    return this.data.devices[index];
+                }
+                return null;
+            }
+
+            deleteDevice(id) {
+                this.data.devices = this.data.devices.filter(d => d.id !== id);
+                this.save();
+            }
+        }
+
+        const db = new Database();
+
+        // Pattern Lock functionality
+        let currentPattern = [];
+        let isDrawing = false;
+        let lockType = 'password'; // 'password' or 'pattern'
+
+        function toggleLockType(type) {
+            lockType = type;
+            
+            // Update button states
+            document.querySelectorAll('.lock-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show/hide pattern lock
+            const patternContainer = document.getElementById('patternLockContainer');
+            const passwordInput = document.getElementById('password');
+            
+            if (type === 'pattern') {
+                patternContainer.classList.add('active');
+                passwordInput.disabled = true;
+                passwordInput.value = '';
+            } else {
+                patternContainer.classList.remove('active');
+                passwordInput.disabled = false;
+                clearPattern();
+            }
+        }
+
+        function initPatternLock() {
+            const dots = document.querySelectorAll('.pattern-dot');
+            
+            dots.forEach(dot => {
+                // Mouse events
+                dot.addEventListener('mousedown', (e) => {
+                    isDrawing = true;
+                    addToPattern(e.target);
+                });
+
+                dot.addEventListener('mouseenter', (e) => {
+                    if (isDrawing) {
+                        addToPattern(e.target);
+                    }
+                });
+
+                // Touch events for mobile
+                dot.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    isDrawing = true;
+                    addToPattern(e.target);
+                });
+
+                dot.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    if (isDrawing) {
+                        const touch = e.touches[0];
+                        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                        if (element && element.classList.contains('pattern-dot')) {
+                            addToPattern(element);
+                        }
+                    }
+                });
+            });
+
+            // End drawing
+            document.addEventListener('mouseup', () => {
+                isDrawing = false;
+            });
+
+            document.addEventListener('touchend', () => {
+                isDrawing = false;
+            });
+        }
+
+        function addToPattern(dot) {
+            const num = dot.getAttribute('data-num');
+            
+            if (!currentPattern.includes(num)) {
+                currentPattern.push(num);
+                dot.classList.add('selected');
+                updatePatternDisplay();
+            }
+        }
+
+        function updatePatternDisplay() {
+            const display = document.getElementById('patternDisplay');
+            if (currentPattern.length === 0) {
+                display.textContent = 'Draw pattern below';
+            } else {
+                display.textContent = `Pattern: ${currentPattern.join(' → ')}`;
+            }
+        }
+
+        function clearPattern() {
+            currentPattern = [];
+            document.querySelectorAll('.pattern-dot').forEach(dot => {
+                dot.classList.remove('selected');
+            });
+            updatePatternDisplay();
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'status') {
+                displayDevices();
+            } else if (tabName === 'completed') {
+                displayCompletedDevices();
+            } else if (tabName === 'sales') {
+                updateSalesData();
+            }
+        }
+
+        // Image preview
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Add device
+        function addDevice(event) {
+            event.preventDefault();
+            
+            const imageFile = document.getElementById('deviceImage').files[0];
+            let imageData = null;
+
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imageData = e.target.result;
+                    saveDevice(imageData);
+                }
+                reader.readAsDataURL(imageFile);
+            } else {
+                saveDevice(null);
+            }
+        }
+
+        function saveDevice(imageData) {
+            const device = {
+                customerName: document.getElementById('customerName').value,
+                contactNumber: document.getElementById('contactNumber').value,
+                password: lockType === 'password' ? document.getElementById('password').value : '',
+                patternLock: lockType === 'pattern' ? currentPattern.join('-') : '',
+                lockType: lockType,
+                fault: document.getElementById('fault').value,
+                estimatedCost: document.getElementById('estimatedCost').value || 0,
+                deviceImage: imageData
+            };
+
+            db.createDevice(device);
+            
+            document.getElementById('deviceForm').reset();
+            document.getElementById('imagePreview').style.display = 'none';
+            clearPattern();
+            
+            // Reset to password mode
+            lockType = 'password';
+            document.getElementById('patternLockContainer').classList.remove('active');
+            document.getElementById('password').disabled = false;
+            document.querySelectorAll('.lock-type-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === 0);
+            });
+            
+            alert('Device added successfully!');
+        }
+
+        // Display devices
+        function displayDevices() {
+            const devices = db.getDevices();
+            const filter = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = devices;
+            
+            if (filter !== 'all') {
+                filtered = filtered.filter(d => d.status === filter);
+            }
+            
+            if (search) {
+                filtered = filtered.filter(d => 
+                    d.customerName.toLowerCase().includes(search) ||
+                    d.contactNumber.includes(search)
+                );
+            }
+
+            const container = document.getElementById('devicesList');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p style="font-size: 1.2em;">No devices found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(device => `
+                <div class="device-card">
+                    <div>
+                        ${device.deviceImage 
+                            ? `<img src="${device.deviceImage}" class="device-image" alt="Device">`
+                            : `<div class="device-image-placeholder">No Image</div>`
+                        }
+                    </div>
+                    <div class="device-info">
+                        <h3>${device.customerName} <span class="status-badge status-${device.status}">${device.status}</span></h3>
+                        <p><strong>Contact:</strong> ${device.contactNumber}</p>
+                        <p><strong>Fault:</strong> ${device.fault}</p>
+                        ${device.password ? `<p><strong>Password:</strong> ${device.password}</p>` : ''}
+                        ${device.patternLock ? `<p><strong>Pattern Lock:</strong> ${device.patternLock.split('-').join(' → ')}</p>` : ''}
+                        <p><strong>Cost:</strong> ₹${device.estimatedCost || 0}</p>
+                        <p style="font-size: 0.85em; color: #999;">Added: ${new Date(device.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn btn-secondary" onclick="editDevice('${device.id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteDevice('${device.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterDevices() {
+            displayDevices();
+        }
+
+        // Edit device
+        function editDevice(id) {
+            const device = db.getDeviceById(id);
+            if (!device) return;
+
+            document.getElementById('editDeviceId').value = id;
+            document.getElementById('editStatus').value = device.status;
+            document.getElementById('editCost').value = device.estimatedCost || 0;
+            document.getElementById('editCustomerName').value = device.customerName;
+            document.getElementById('editContactNumber').value = device.contactNumber;
+            document.getElementById('editFault').value = device.fault;
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function saveEdit(event) {
+            event.preventDefault();
+            
+            const id = document.getElementById('editDeviceId').value;
+            const updates = {
+                status: document.getElementById('editStatus').value,
+                estimatedCost: document.getElementById('editCost').value,
+                customerName: document.getElementById('editCustomerName').value,
+                contactNumber: document.getElementById('editContactNumber').value,
+                fault: document.getElementById('editFault').value
+            };
+
+            db.updateDevice(id, updates);
+            closeEditModal();
+            displayDevices();
+            alert('Device updated successfully!');
+        }
+
+        // Delete device
+        function deleteDevice(id) {
+            if (confirm('Are you sure you want to delete this device?')) {
+                db.deleteDevice(id);
+                displayDevices();
+            }
+        }
+
+        // Display completed and delivered devices
+        function displayCompletedDevices() {
+            const devices = db.getDevices();
+            const filter = document.getElementById('completedFilter').value;
+            const search = document.getElementById('completedSearchInput').value.toLowerCase();
+            const monthFilter = document.getElementById('completedMonthFilter').value;
+            
+            let filtered = devices.filter(d => d.status === 'completed' || d.status === 'delivered');
+            
+            if (filter === 'completed') {
+                filtered = filtered.filter(d => d.status === 'completed');
+            } else if (filter === 'delivered') {
+                filtered = filtered.filter(d => d.status === 'delivered');
+            }
+            
+            if (search) {
+                filtered = filtered.filter(d => 
+                    d.customerName.toLowerCase().includes(search) ||
+                    d.contactNumber.includes(search)
+                );
+            }
+
+            if (monthFilter) {
+                filtered = filtered.filter(d => d.createdAt.startsWith(monthFilter));
+            }
+
+            // Update stats
+            const completedCount = devices.filter(d => d.status === 'completed').length;
+            const deliveredCount = devices.filter(d => d.status === 'delivered').length;
+            const totalRevenue = filtered.reduce((sum, d) => sum + parseFloat(d.estimatedCost || 0), 0);
+
+            document.getElementById('completedCount').textContent = completedCount;
+            document.getElementById('deliveredCount').textContent = deliveredCount;
+            document.getElementById('completedRevenue').textContent = `₹${totalRevenue.toFixed(2)}`;
+
+            const container = document.getElementById('completedDevicesList');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p style="font-size: 1.2em;">No completed or delivered devices found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort by most recent first
+            filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            container.innerHTML = filtered.map(device => `
+                <div class="device-card">
+                    <div>
+                        ${device.deviceImage 
+                            ? `<img src="${device.deviceImage}" class="device-image" alt="Device">`
+                            : `<div class="device-image-placeholder">No Image</div>`
+                        }
+                    </div>
+                    <div class="device-info">
+                        <h3>${device.customerName} <span class="status-badge status-${device.status}">${device.status}</span></h3>
+                        <p><strong>Contact:</strong> ${device.contactNumber}</p>
+                        <p><strong>Fault:</strong> ${device.fault}</p>
+                        ${device.password ? `<p><strong>Password:</strong> ${device.password}</p>` : ''}
+                        ${device.patternLock ? `<p><strong>Pattern Lock:</strong> ${device.patternLock.split('-').join(' → ')}</p>` : ''}
+                        <p><strong>Cost:</strong> ₹${device.estimatedCost || 0}</p>
+                        <p style="font-size: 0.85em; color: #999;">Added: ${new Date(device.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div class="device-actions">
+                        <button class="btn btn-secondary" onclick="editDevice('${device.id}')">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteDeviceFromCompleted('${device.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteDeviceFromCompleted(id) {
+            if (confirm('Are you sure you want to delete this device?')) {
+                db.deleteDevice(id);
+                displayCompletedDevices();
+            }
+        }
+
+        // Sales data
+        function updateSalesData() {
+            const devices = db.getDevices();
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const currentMonth = now.toISOString().slice(0, 7);
+
+            const selectedMonth = document.getElementById('monthSelector').value || currentMonth;
+
+            // Calculate stats
+            const todaySales = devices
+                .filter(d => d.status === 'delivered' && d.createdAt.startsWith(today))
+                .reduce((sum, d) => sum + parseFloat(d.estimatedCost || 0), 0);
+
+            const monthSales = devices
+                .filter(d => d.status === 'delivered' && d.createdAt.startsWith(currentMonth))
+                .reduce((sum, d) => sum + parseFloat(d.estimatedCost || 0), 0);
+
+            const totalDevices = devices.length;
+            const completedDevices = devices.filter(d => d.status === 'completed' || d.status === 'delivered').length;
+
+            document.getElementById('todaySales').textContent = `₹${todaySales.toFixed(2)}`;
+            document.getElementById('monthSales').textContent = `₹${monthSales.toFixed(2)}`;
+            document.getElementById('totalDevices').textContent = totalDevices;
+            document.getElementById('completedDevices').textContent = completedDevices;
+
+            // Sales table
+            const monthDevices = devices.filter(d => d.createdAt.startsWith(selectedMonth));
+            const tableBody = document.getElementById('salesTableBody');
+            
+            tableBody.innerHTML = monthDevices.map(device => `
+                <tr>
+                    <td>${new Date(device.createdAt).toLocaleDateString()}</td>
+                    <td>${device.customerName}</td>
+                    <td>${device.contactNumber}</td>
+                    <td>${device.fault.substring(0, 50)}...</td>
+                    <td>₹${device.estimatedCost || 0}</td>
+                    <td><span class="status-badge status-${device.status}">${device.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // Initialize
+        document.getElementById('monthSelector').value = new Date().toISOString().slice(0, 7);
+        document.getElementById('completedMonthFilter').value = new Date().toISOString().slice(0, 7);
+        initPatternLock();
+        displayDevices();
+        updateSalesData();
+
+        // PWA Install functionality
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBanner').classList.add('show');
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response: ${outcome}`);
+                deferredPrompt = null;
+                document.getElementById('installBanner').classList.remove('show');
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA installed successfully');
+            document.getElementById('installBanner').classList.remove('show');
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered:', reg))
+                .catch(err => console.log('Service Worker registration failed:', err));
+        }
+
+        // Offline/Online Detection
+        const offlineIndicator = document.getElementById('offlineIndicator');
+
+        window.addEventListener('offline', () => {
+            offlineIndicator.classList.add('show');
+            offlineIndicator.classList.remove('online');
+            offlineIndicator.textContent = '📡 You\'re offline';
+        });
+
+        window.addEventListener('online', () => {
+            offlineIndicator.classList.add('show', 'online');
+            offlineIndicator.textContent = '✅ Back online';
+            setTimeout(() => {
+                offlineIndicator.classList.remove('show');
+            }, 3000);
+        });
+    </script>
+
+    <!-- Offline Indicator -->
+    <div id="offlineIndicator" class="offline-indicator">
+        📡 You're offline
+    </div>
+</body>
+</html>
